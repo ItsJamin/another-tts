@@ -30,3 +30,4 @@ Easy Workflow for creating Training Data for TTS.
 
 - [ ] Training of Data? (maybe in another project)
 - [ ] Metadata for voice (mood, whisper, etc.)?
+- [ ] Docker Implementation
