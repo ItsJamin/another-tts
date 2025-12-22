@@ -56,12 +56,15 @@ def upload_audio(sentence_index):
         return jsonify({'error': 'No audio file provided'}), 400
 
     audio_file = request.files['audio']
+
+    # Accept transcript from the frontend if provided; otherwise fall back to sentence index
+    transcript = request.form.get('transcript', '').strip()
     sentences = get_sentences()
 
-    if not (0 <= sentence_index < len(sentences)):
-        return jsonify({'error': 'Invalid sentence index'}), 400
-
-    transcript = sentences[sentence_index]
+    if not transcript:
+        if not (0 <= sentence_index < len(sentences)):
+            return jsonify({'error': 'Invalid sentence index'}), 400
+        transcript = sentences[sentence_index]
 
     # Generate unique filename
     filename = f"recording_{uuid.uuid4().hex}.wav"
@@ -72,7 +75,7 @@ def upload_audio(sentence_index):
     with open(filepath, 'wb') as f:
         f.write(audio_data)
 
-    # Save metadata
+    # Save metadata (use frontend-provided transcript when available)
     save_metadata(filename, transcript)
 
     return jsonify({'success': True, 'filename': filename})
@@ -91,5 +94,49 @@ def update_transcript(sentence_index):
 
     # Update in memory (in real app, you'd update the file)
     sentences[sentence_index] = new_transcript
+
+    return jsonify({'success': True})
+
+
+@collection_bp.route('/update_transcript', methods=['POST'])
+def update_transcript_for_file():
+    """
+    Update the transcript stored in metadata.csv for a specific filename.
+    Expects JSON: { "filename": "<recording filename>", "transcript": "<new transcript>" }
+    If the filename is not present in metadata, a new entry will be appended.
+    """
+    data = request.get_json() or {}
+    filename = data.get('filename', '').strip()
+    new_transcript = data.get('transcript', '').strip()
+
+    if not filename:
+        return jsonify({'error': 'Missing filename'}), 400
+    if not new_transcript:
+        return jsonify({'error': 'Empty transcript'}), 400
+
+    rows = []
+    if os.path.exists(METADATA_FILE):
+        with open(METADATA_FILE, 'r', encoding='utf-8', newline='') as csvfile:
+            reader = csv.DictReader(csvfile, delimiter='|')
+            for r in reader:
+                rows.append(r)
+
+    found = False
+    for r in rows:
+        if r.get('filename') == filename:
+            r['transcript'] = new_transcript
+            found = True
+            break
+
+    if not found:
+        rows.append({'filename': filename, 'transcript': new_transcript})
+
+    # Write back whole CSV
+    with open(METADATA_FILE, 'w', encoding='utf-8', newline='') as csvfile:
+        fieldnames = ['filename', 'transcript']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames, delimiter='|')
+        writer.writeheader()
+        for r in rows:
+            writer.writerow(r)
 
     return jsonify({'success': True})

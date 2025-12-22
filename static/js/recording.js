@@ -6,6 +6,7 @@ let mediaRecorder = null;
 let audioChunks = [];
 let stream = null;
 let totalSentences = -1;
+let savedFilenames = {};
 
 const recordButton = document.getElementById('recordButton');
 const waveformDiv = document.getElementById('waveform');
@@ -131,6 +132,12 @@ async function keepRecording() {
     const formData = new FormData();
     formData.append('audio', currentAudioBlob, 'recording.wav');
 
+    // send current transcript from frontend if available
+    const currentTranscript = document.getElementById('currentSentence').textContent || '';
+    if (currentTranscript.trim()) {
+        formData.append('transcript', currentTranscript.trim());
+    }
+
     try {
         document.getElementById('status').textContent = 'Uploading...';
         const response = await fetch(`/upload_audio/${currentSentenceIndex}`, {
@@ -140,6 +147,10 @@ async function keepRecording() {
 
         const data = await response.json();
         if (data.success) {
+            // store returned filename so later edits can update metadata
+            if (data.filename) {
+                savedFilenames[currentSentenceIndex] = data.filename;
+            }
             document.getElementById('status').textContent = 'Saved! Moving to next sentence...';
             setTimeout(() => {
                 nextSentence();
@@ -185,14 +196,28 @@ async function saveTranscript() {
     if (!newTranscript) return;
 
     try {
-        const response = await fetch(`/update_transcript/${currentSentenceIndex}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ transcript: newTranscript })
-        });
+        const filename = savedFilenames[currentSentenceIndex];
+        let response, data;
 
-        const data = await response.json();
-        if (data.success) {
+        if (filename) {
+            // Update metadata for the specific file
+            response = await fetch(`/update_transcript`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ filename: filename, transcript: newTranscript })
+            });
+            data = await response.json();
+        } else {
+            // Fallback to sentence-index based update
+            response = await fetch(`/update_transcript/${currentSentenceIndex}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ transcript: newTranscript })
+            });
+            data = await response.json();
+        }
+
+        if (data && data.success) {
             document.getElementById('currentSentence').textContent = newTranscript;
             transcriptEdit.classList.remove('show');
             document.getElementById('status').textContent = 'Transcript updated.';
