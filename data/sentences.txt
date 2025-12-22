@@ -1,0 +1,24 @@
+Hello, this is a test recording.
+How are you doing today?
+What time is it now?
+I would like to order pizza.
+The weather is beautiful outside.
+Can you please help me?
+Please speak clearly and slowly.
+This is sentence number one.
+Why is the sky blue?
+How many people are in the room?
+Today is a good day to record audio.
+Let's test different sentence lengths.
+This is a much longer sentence that we can use for training our text to speech model, allowing us to see how the system handles longer texts.
+Zero one two three four five six seven eight nine ten.
+Doctor Smith will see you now.
+Please spell your last name.
+The capital of France is Paris.
+What is two plus two?
+I am very excited to be here.
+Can I have a reservation for two?
+Hello world, this is a computer speaking.
+The quick brown fox jumps over the lazy dog.
+She sells seashells by the seashore.
+How much wood would a woodchuck chuck?
