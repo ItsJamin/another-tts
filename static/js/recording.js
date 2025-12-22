@@ -289,3 +289,8 @@ document.addEventListener('keydown', event => {
             break;
         }
 });
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await fetchTotalSentences();
+    loadSentence(currentSentenceIndex);
+});
