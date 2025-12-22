@@ -14,13 +14,15 @@
         <div class="recording-card">
             <h1 class="text-center mb-4" style="color: #28a745;">TTS Audio Recording</h1>
 
-            <div class="progress-bar">
-                <div class="progress">
-                    <div class="progress-bar bg-success" role="progressbar" id="progressBar" style="width: 0%"></div>
-                </div>
-                <small class="text-muted">Sentence <span id="currentIndex">1</span> of <span id="totalSentences">{{ total_sentences }}</span></small>
-            </div>
 
+
+            <div class="sentence-navigation mb-3">
+                <div class="input-group" style="max-width: 200px; margin: 0 auto;">
+                    <button class="btn btn-outline-success" id="prevBtn" title="Left Arrow">←</button>
+                    <input type="number" class="form-control text-center" id="sentenceNumberInput" min="1" value="1">
+                    <button class="btn btn-outline-success" id="nextBtn" title="Right Arrow">→</button>
+                </div>
+            </div>
             <div class="sentence-display" id="sentenceDisplay">
                 <span id="currentSentence">Loading...</span>
             </div>
@@ -32,14 +34,17 @@
                         <circle cx="12" cy="12" r="3"/>
                     </svg>
                 </button>
+                <div class="waveform" id="waveform" style="display: none;">
+                    <div class="waveform-bar" id="waveformBar"></div>
+                </div>
                 <div class="status" id="status">Click record or press Space to start</div>
             </div>
 
             <div class="controls">
-                <button class="control-btn" id="playBtn" disabled title="Spacebar">Play</button>
-                <button class="control-btn" id="keepBtn" disabled title="Enter">Keep</button>
-                <button class="control-btn" id="redoBtn" title="R">Redo</button>
-                <button class="control-btn" id="editBtn" title="E">Edit Text</button>
+                <button class="control-btn" id="playBtn" disabled title="Space">Play (Space)</button>
+                <button class="control-btn" id="keepBtn" disabled title="Enter">Keep (Enter)</button>
+                <button class="control-btn" id="redoBtn" title="R">Redo (R)</button>
+                <button class="control-btn" id="editBtn" title="E">Edit Text (E)</button>
             </div>
 
             <div class="transcript-edit" id="transcriptEdit">

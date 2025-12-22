@@ -5,9 +5,11 @@ let isRecording = false;
 let mediaRecorder = null;
 let audioChunks = [];
 let stream = null;
-let totalSentences = 99;//{{ total_sentences }};
+let totalSentences = -1;
 
 const recordButton = document.getElementById('recordButton');
+const waveformDiv = document.getElementById('waveform');
+const waveformBar = document.getElementById('waveformBar');
 const playBtn = document.getElementById('playBtn');
 const keepBtn = document.getElementById('keepBtn');
 const redoBtn = document.getElementById('redoBtn');
@@ -16,6 +18,21 @@ const saveEditBtn = document.getElementById('saveEditBtn');
 const cancelEditBtn = document.getElementById('cancelEditBtn');
 const transcriptEdit = document.getElementById('transcriptEdit');
 const transcriptTextarea = document.getElementById('transcriptTextarea');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const sentenceInput = document.getElementById('sentenceNumberInput');
+
+async function fetchTotalSentences() {
+    try {
+        const response = await fetch('/get_total_sentences');
+        const data = await response.json();
+        totalSentences = data.total;
+        sentenceInput.max = totalSentences;
+    } catch (error) {
+        console.error('Error fetching total:', error);
+        totalSentences = 24; // fallback
+    }
+}
 
 async function loadSentence(index) {
     try {
@@ -23,8 +40,7 @@ async function loadSentence(index) {
         const data = await response.json();
         if (data.sentence) {
             document.getElementById('currentSentence').textContent = data.sentence;
-            document.getElementById('currentIndex').textContent = index + 1;
-            updateProgressBar();
+            sentenceInput.value = index + 1;
             resetRecordingState();
         }
     } catch (error) {
@@ -33,15 +49,20 @@ async function loadSentence(index) {
     }
 }
 
-function updateProgressBar() {
-    const percentage = ((currentSentenceIndex + 1) / totalSentences) * 100;
-    document.getElementById('progressBar').style.width = percentage + '%';
+function navigateToSentence(index) {
+    if (index >= 0 && index < totalSentences) {
+        currentSentenceIndex = index;
+        loadSentence(currentSentenceIndex);
+    } else {
+        sentenceInput.value = currentSentenceIndex + 1;
+    }
 }
 
 function resetRecordingState() {
     isRecording = false;
     recordButton.classList.remove('recording');
-    recordButton.disabled = false;
+    recordButton.style.display = 'block';
+    waveformDiv.style.display = 'none';
     playBtn.disabled = true;
     keepBtn.disabled = true;
     document.getElementById('status').textContent = 'Click record or press Space to start';
@@ -65,9 +86,7 @@ async function startRecording() {
         mediaRecorder.onstop = () => {
             currentAudioBlob = new Blob(audioChunks, { type: 'audio/wav' });
             currentAudioUrl = URL.createObjectURL(currentAudioBlob);
-            playBtn.disabled = false;
-            keepBtn.disabled = false;
-
+            showWaveform();
             // Stop all tracks
             stream.getTracks().forEach(track => track.stop());
         };
@@ -80,6 +99,12 @@ async function startRecording() {
         console.error('Error starting recording:', error);
         document.getElementById('status').textContent = 'Error accessing microphone';
     }
+}
+
+function showWaveform() {
+    recordButton.style.display = 'none';
+    waveformDiv.style.display = 'block';
+    waveformBar.style.width = '100%'; // Fixed width
 }
 
 function stopRecording() {
@@ -137,8 +162,14 @@ function nextSentence() {
 }
 
 function redo() {
+    showRecordingButton();
     document.getElementById('status').textContent = 'Redo requested. Click record or press Space.';
     resetRecordingState();
+}
+
+function showRecordingButton() {
+    waveformDiv.style.display = 'none';
+    recordButton.style.display = 'block';
 }
 
 function editTranscript() {
@@ -185,20 +216,46 @@ recordButton.addEventListener('click', () => {
     }
 });
 
+waveformDiv.addEventListener('click', playRecording);
 playBtn.addEventListener('click', playRecording);
 keepBtn.addEventListener('click', keepRecording);
-redoBtn.addEventListener('click', redo);
+redoBtn.addEventListener('click', () => {
+    showRecordingButton();
+    resetRecordingState();
+});
 editBtn.addEventListener('click', editTranscript);
 saveEditBtn.addEventListener('click', saveTranscript);
 cancelEditBtn.addEventListener('click', cancelEdit);
 
+// Navigation event listeners
+prevBtn.addEventListener('click', () => {
+    if (currentSentenceIndex > 0) {
+        navigateToSentence(currentSentenceIndex - 1);
+    }
+});
+
+nextBtn.addEventListener('click', () => {
+    if (currentSentenceIndex < totalSentences - 1) {
+        navigateToSentence(currentSentenceIndex + 1);
+    }
+});
+
+sentenceInput.addEventListener('change', () => {
+    const targetIndex = parseInt(sentenceInput.value) - 1;
+    navigateToSentence(targetIndex);
+});
+
 // Keyboard shortcuts
 document.addEventListener('keydown', event => {
+    if (event.target.tagName === 'TEXTAREA') return; // Ignore textarea
+
     switch (event.code) {
         case 'Space':
             event.preventDefault();
             if (isRecording) {
                 stopRecording();
+            } else if (currentAudioBlob) {
+                playRecording();
             } else {
                 startRecording();
             }
@@ -209,14 +266,26 @@ document.addEventListener('keydown', event => {
             }
             break;
         case 'KeyR':
-            if (event.ctrlKey || event.metaKey) return; // Allow browser refresh
+            if (event.ctrlKey || event.metaKey) return;
             redo();
             break;
         case 'KeyE':
             editTranscript();
             break;
-    }
-});
+        case 'ArrowLeft':
+            event.preventDefault();
+            if (currentSentenceIndex > 0) {
+                navigateToSentence(currentSentenceIndex - 1);
+            }
+            break;
+        case 'ArrowRight':
+            event.preventDefault();
+            if (currentSentenceIndex < totalSentences - 1) {
+                navigateToSentence(currentSentenceIndex + 1);
+            }
+            break;
 
-// Initialize
-loadSentence(0);
+        default:
+            break;
+        }
+});

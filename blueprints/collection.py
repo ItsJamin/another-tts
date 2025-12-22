@@ -32,6 +32,11 @@ def save_metadata(filename, transcript):
             writer.writeheader()
         writer.writerow({'filename': filename, 'transcript': transcript})
 
+@collection_bp.route('/get_total_sentences')
+def get_total_sentences():
+    sentences = get_sentences()
+    return jsonify({'total': len(sentences)})
+
 @collection_bp.route('/get_sentence/<int:index>')
 def get_sentence(index):
     sentences = get_sentences()
