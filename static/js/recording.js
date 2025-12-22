@@ -7,6 +7,7 @@ let audioChunks = [];
 let stream = null;
 let totalSentences = -1;
 let savedFilenames = {};
+let audioPlayer = null;
 
 const recordButton = document.getElementById('recordButton');
 const waveformDiv = document.getElementById('waveform');
@@ -67,11 +68,20 @@ function resetRecordingState() {
     playBtn.disabled = true;
     keepBtn.disabled = true;
     document.getElementById('status').textContent = 'Click record or press Space to start';
+    if (audioPlayer) {
+        try { audioPlayer.pause(); } catch (e) {}
+        audioPlayer = null;
+    }
     if (currentAudioUrl) {
         URL.revokeObjectURL(currentAudioUrl);
         currentAudioUrl = null;
     }
     currentAudioBlob = null;
+    if (waveformBar) waveformBar.style.width = '0%';
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationTimeEl = document.getElementById('durationTime');
+    if (currentTimeEl) currentTimeEl.textContent = '0:00';
+    if (durationTimeEl) durationTimeEl.textContent = '0:00';
 }
 
 async function startRecording() {
@@ -105,7 +115,11 @@ async function startRecording() {
 function showWaveform() {
     recordButton.style.display = 'none';
     waveformDiv.style.display = 'block';
-    waveformBar.style.width = '100%'; // Fixed width
+    waveformBar.style.width = '0%';
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationTimeEl = document.getElementById('durationTime');
+    if (currentTimeEl) currentTimeEl.textContent = '0:00';
+    if (durationTimeEl) durationTimeEl.textContent = '0:00';
 }
 
 function stopRecording() {
@@ -119,11 +133,64 @@ function stopRecording() {
     }
 }
 
+function formatTime(seconds) {
+    if (!isFinite(seconds) || isNaN(seconds)) return '0:00';
+    const m = Math.floor(seconds / 60);
+    const s = Math.floor(seconds % 60);
+    return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
 function playRecording() {
-    if (currentAudioUrl) {
-        const audio = new Audio(currentAudioUrl);
-        audio.play();
+    if (!currentAudioUrl) return;
+
+    // If there's an existing player that's paused/playing, toggle play/pause
+    if (audioPlayer && !audioPlayer.ended) {
+        if (audioPlayer.paused) {
+            audioPlayer.play().then(() => {
+                document.getElementById('status').textContent = 'Playing...';
+            }).catch(err => {
+                console.error('Playback error:', err);
+            });
+        } else {
+            audioPlayer.pause();
+            document.getElementById('status').textContent = 'Paused';
+        }
+        return;
     }
+
+    audioPlayer = new Audio(currentAudioUrl);
+    audioPlayer.preload = 'metadata';
+
+    // Use a fixed nominal duration (1 minute) for progress bar mapping
+
+    const currentTimeEl = document.getElementById('currentTime');
+    const durationTimeEl = document.getElementById('durationTime');
+
+    audioPlayer.addEventListener('loadedmetadata', () => {
+        if (durationTimeEl) durationTimeEl.textContent = formatTime(audioPlayer.duration);
+    });
+
+    audioPlayer.addEventListener('timeupdate', () => {
+        const elapsed = Math.max(0, audioPlayer.currentTime || 0);
+        const pct = Math.min((elapsed / audioPlayer.duration) * 100, 100);
+        waveformBar.style.width = pct + '%';
+        console.log(pct, elapsed);
+        if (currentTimeEl) currentTimeEl.textContent = formatTime(elapsed);
+    });
+
+    audioPlayer.addEventListener('ended', () => {
+        waveformBar.style.width = '100%';
+        if (currentTimeEl) currentTimeEl.textContent = formatTime(audioPlayer.duration);
+        document.getElementById('status').textContent = 'Playback finished.';
+        audioPlayer = null;
+    });
+
+    audioPlayer.play().then(() => {
+        document.getElementById('status').textContent = 'Playing...';
+    }).catch(err => {
+        console.error('Playback error:', err);
+        document.getElementById('status').textContent = 'Playback error';
+    });
 }
 
 async function keepRecording() {

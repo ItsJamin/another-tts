@@ -27,7 +27,7 @@
                 <span id="currentSentence">Loading...</span>
             </div>
 
-            <div class="text-center">
+                <div class="text-center">
                 <button class="record-button" id="recordButton" title="Press Space to start/stop recording">
                     <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
                         <circle cx="12" cy="12" r="10"/>
@@ -35,7 +35,13 @@
                     </svg>
                 </button>
                 <div class="waveform" id="waveform" style="display: none;">
-                    <div class="waveform-bar" id="waveformBar"></div>
+                    <div class="progress waveform-progress" id="waveformProgress" style="height:12px;">
+                        <div class="" id="waveformBar" style="width: 0%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small id="currentTime">0:00</small>
+                        <small id="durationTime">0:00</small>
+                    </div>
                 </div>
                 <div class="status" id="status">Click record or press Space to start</div>
             </div>
