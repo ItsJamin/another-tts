@@ -64,7 +64,7 @@ Examples:
 
 * WAV format, PCM (uncompressed), mono
 * Consistent sample rate across all files
-* Recommended: 24 kHz, 16-bit
+* Recommended: 44.1 kHz, 16-bit
 * One sentence per file
 * File duration ideally between 1.5 and 8 seconds
 * No leading or trailing silence greater than ~200 ms
