@@ -19,10 +19,12 @@ const editBtn = document.getElementById('editBtn');
 const saveEditBtn = document.getElementById('saveEditBtn');
 const cancelEditBtn = document.getElementById('cancelEditBtn');
 const transcriptEdit = document.getElementById('transcriptEdit');
-const transcriptTextarea = document.getElementById('transcriptTextarea');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const sentenceInput = document.getElementById('sentenceNumberInput');
+let isEditingSentence = false;
+let originalSentenceText = '';
+
 
 async function fetchTotalSentences() {
     try {
@@ -253,53 +255,91 @@ function showRecordingButton() {
 }
 
 function editTranscript() {
-    transcriptTextarea.value = document.getElementById('currentSentence').textContent;
-    transcriptEdit.classList.add('show');
-    transcriptTextarea.focus();
+    if (isEditingSentence) return;
+
+    const sentenceSpan = document.getElementById('currentSentence');
+    const sentenceContainer = document.getElementById('sentenceDisplay');
+
+    originalSentenceText = sentenceSpan.textContent;
+    isEditingSentence = true;
+
+    sentenceSpan.setAttribute('contenteditable', 'true');
+    sentenceContainer.classList.add('editing');
+
+    sentenceSpan.focus();
+    placeCaretAtEnd(sentenceSpan);
+
+    document.getElementById('status').textContent =
+        'Editing sentence. Press Enter to save, Esc to cancel.';
 }
 
-async function saveTranscript() {
-    const newTranscript = transcriptTextarea.value.trim();
-    if (!newTranscript) return;
+function saveInlineTranscript() {
+    if (!isEditingSentence) return;
 
-    try {
-        const filename = savedFilenames[currentSentenceIndex];
-        let response, data;
+    const sentenceSpan = document.getElementById('currentSentence');
+    const newTranscript = sentenceSpan.textContent.trim();
 
-        if (filename) {
-            // Update metadata for the specific file
-            response = await fetch(`/update_transcript`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ filename: filename, transcript: newTranscript })
-            });
-            data = await response.json();
-        } else {
-            // Fallback to sentence-index based update
-            response = await fetch(`/update_transcript/${currentSentenceIndex}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ transcript: newTranscript })
-            });
-            data = await response.json();
-        }
-
-        if (data && data.success) {
-            document.getElementById('currentSentence').textContent = newTranscript;
-            transcriptEdit.classList.remove('show');
-            document.getElementById('status').textContent = 'Transcript updated.';
-        } else {
-            document.getElementById('status').textContent = 'Error updating transcript.';
-        }
-    } catch (error) {
-        console.error('Error updating transcript:', error);
-        document.getElementById('status').textContent = 'Error updating transcript.';
+    if (!newTranscript) {
+        sentenceSpan.textContent = originalSentenceText;
+        cancelInlineEdit();
+        return;
     }
+
+    persistTranscript(newTranscript);
+    exitInlineEdit();
+
+    document.getElementById('status').textContent = 'Transcript updated.';
 }
 
-function cancelEdit() {
-    transcriptEdit.classList.remove('show');
+function cancelInlineEdit() {
+    const sentenceSpan = document.getElementById('currentSentence');
+    sentenceSpan.textContent = originalSentenceText;
+    exitInlineEdit();
+
+    document.getElementById('status').textContent = 'Edit canceled.';
 }
+
+function exitInlineEdit() {
+    const sentenceSpan = document.getElementById('currentSentence');
+    const sentenceContainer = document.getElementById('sentenceDisplay');
+
+    sentenceSpan.removeAttribute('contenteditable');
+    sentenceContainer.classList.remove('editing');
+
+    isEditingSentence = false;
+}
+
+async function persistTranscript(newTranscript) {
+    const filename = savedFilenames[currentSentenceIndex];
+    let response, data;
+
+    if (filename) {
+        response = await fetch('/update_transcript', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filename, transcript: newTranscript })
+        });
+    } else {
+        response = await fetch(`/update_transcript/${currentSentenceIndex}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ transcript: newTranscript })
+        });
+    }
+
+    data = await response.json();
+}
+
+function placeCaretAtEnd(el) {
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+}
+
 
 // Event listeners
 recordButton.addEventListener('click', () => {
@@ -318,8 +358,6 @@ redoBtn.addEventListener('click', () => {
     resetRecordingState();
 });
 editBtn.addEventListener('click', editTranscript);
-saveEditBtn.addEventListener('click', saveTranscript);
-cancelEditBtn.addEventListener('click', cancelEdit);
 
 // Navigation event listeners
 prevBtn.addEventListener('click', () => {
@@ -341,11 +379,36 @@ sentenceInput.addEventListener('change', () => {
 
 // Keyboard shortcuts
 document.addEventListener('keydown', event => {
-    if (event.target.tagName === 'TEXTAREA') return; // Ignore textarea
+    const activeElement = document.activeElement;
 
+    // Ignore native textarea inputs entirely
+    if (activeElement && activeElement.tagName === 'TEXTAREA') {
+        return;
+    }
+
+    // Handle inline sentence editing first
+    if (isEditingSentence) {
+        if (event.code === 'Enter') {
+            event.preventDefault();
+            saveInlineTranscript();
+            return;
+        }
+
+        if (event.code === 'Escape') {
+            event.preventDefault();
+            cancelInlineEdit();
+            return;
+        }
+
+        // While editing, do not allow any other shortcuts
+        return;
+    }
+
+    // Normal (non-editing) global shortcuts
     switch (event.code) {
         case 'Space':
             event.preventDefault();
+
             if (isRecording) {
                 stopRecording();
             } else if (currentAudioBlob) {
@@ -354,24 +417,30 @@ document.addEventListener('keydown', event => {
                 startRecording();
             }
             break;
+
         case 'Enter':
             if (!keepBtn.disabled) {
                 keepRecording();
             }
             break;
+
         case 'KeyR':
             if (event.ctrlKey || event.metaKey) return;
             redo();
             break;
+
         case 'KeyE':
+            event.preventDefault();
             editTranscript();
             break;
+
         case 'ArrowLeft':
             event.preventDefault();
             if (currentSentenceIndex > 0) {
                 navigateToSentence(currentSentenceIndex - 1);
             }
             break;
+
         case 'ArrowRight':
             event.preventDefault();
             if (currentSentenceIndex < totalSentences - 1) {
@@ -381,8 +450,9 @@ document.addEventListener('keydown', event => {
 
         default:
             break;
-        }
+    }
 });
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     await fetchTotalSentences();
