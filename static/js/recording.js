@@ -30,7 +30,7 @@ async function fetchTotalSentences() {
         sentenceInput.max = totalSentences;
     } catch (error) {
         console.error('Error fetching total:', error);
-        totalSentences = 24; // fallback
+        totalSentences = -1; // fallback
     }
 }
 
@@ -113,6 +113,8 @@ function stopRecording() {
         isRecording = false;
         recordButton.classList.remove('recording');
         document.getElementById('status').textContent = 'Recording stopped. Review your audio.';
+        playBtn.disabled = false;
+        keepBtn.disabled = false;
     }
 }
 

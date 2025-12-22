@@ -14,11 +14,17 @@ os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(WAVS_DIR, exist_ok=True)
 
 def get_sentences():
-    """Load sentences from data/sentences.txt"""
-    sentences_file = os.path.join(DATA_DIR, 'sentences.txt')
-    if os.path.exists(sentences_file):
-        with open(sentences_file, 'r', encoding='utf-8') as f:
-            sentences = [line.strip() for line in f if line.strip()]
+    """Load sentences from data/sentences_de/*.txt"""
+
+    sentence_folder = os.path.join(DATA_DIR, 'sentences_de')
+    if os.path.exists(sentence_folder):
+        sentences = []
+        for filename in os.listdir(sentence_folder):
+            if filename.endswith('.txt'):
+                filepath = os.path.join(sentence_folder, filename)
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    file_sentences = [line.strip() for line in f if line.strip()]
+                    sentences.extend(file_sentences)
         return sentences
     return []
 
