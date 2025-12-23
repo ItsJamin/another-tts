@@ -5,7 +5,18 @@ Easy Workflow for creating Training Data for TTS.
 <img width="1853" height="845" alt="interface of record session" src="https://github.com/user-attachments/assets/857ef023-99d0-4429-93bc-53d9829d1dfe" />
 
 
-### Installation
+# Installation
+
+### Docker-Way
+
+```
+git clone https://github.com/ItsJamin/another-tts
+cd another-tts
+cp .env.example .env
+docker compose up
+```
+
+### Python-Way
 
 - Create `.venv` (Python 3.13.7)
     `python -m venv .venv`
@@ -30,13 +41,13 @@ Change the name of your dataset to what your dataset should be called.
 
 - Start Server with `python app.py` and visit `localhost:5000`
 
-### Data
+# Data
 
 - `data/sentences/CURRENT_LANGUAGE/` - Textfiles of what to say
 - `data/datasets/CURRENT_DATASET/` - Place where recordings are saved.
 - `data/datasets/CURRENT_DATASET/metadata.csv` - Which audiofiles contain what text. (see `example` Dataset)
 
-### TODO
+# TODO
 
 - [x] GUI for easily recording Data
 - [ ] GUI for Overview over recorded Data
