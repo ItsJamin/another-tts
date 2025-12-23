@@ -12,7 +12,6 @@ Easy Workflow for creating Training Data for TTS.
 ```
 git clone https://github.com/ItsJamin/another-tts
 cd another-tts
-cp .env.example .env
 docker compose up
 ```
 
