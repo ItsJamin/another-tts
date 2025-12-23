@@ -1,6 +1,21 @@
 import os
+import shutil
 from flask import Flask, jsonify, render_template, send_file
 from blueprints.collection import collection_bp
+
+env_dir = os.path.join(os.getcwd(), "env")
+env_path = os.path.join(env_dir, ".env")
+example_env_path = os.path.join(os.getcwd(), ".env.example")
+
+# Ensure env directory exists
+os.makedirs(env_dir, exist_ok=True)
+
+# Copy .env.example to .env if not already present
+if not os.path.exists(env_path):
+    shutil.copy(example_env_path, env_path)
+    print(f"Created default .env at {env_path}")
+
+# ---
 
 app = Flask(__name__)
 
@@ -22,4 +37,4 @@ def get_audio(filename):
     return jsonify({'error': 'Audio file not found'}), 404
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5067)

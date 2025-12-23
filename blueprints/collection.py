@@ -14,7 +14,7 @@ import dotenv
 collection_bp = Blueprint('collection', __name__)
 
 DATA_DIR = 'data'
-WAVS_DIR = os.path.join(DATA_DIR,  'datasets', dotenv.get_key('.env', 'CURRENT_DATASET') or 'your_dataset')
+WAVS_DIR = os.path.join(DATA_DIR,  'datasets', dotenv.get_key('env/.env', 'CURRENT_DATASET') or 'your_dataset')
 METADATA_FILE = os.path.join(WAVS_DIR, 'metadata.csv')
 
 # Ensure directories exist
@@ -24,7 +24,7 @@ os.makedirs(WAVS_DIR, exist_ok=True)
 def get_sentences():
     """Load sentences from data/sentences/de/*.txt"""
 
-    sentence_folder = os.path.join(DATA_DIR, 'sentences', dotenv.get_key('.env', 'CURRENT_LANGUAGE') or 'de')
+    sentence_folder = os.path.join(DATA_DIR, 'sentences', dotenv.get_key('env/.env', 'CURRENT_LANGUAGE') or 'de')
     if os.path.exists(sentence_folder):
         sentences = []
         for filename in os.listdir(sentence_folder):

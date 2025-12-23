@@ -29,7 +29,7 @@ docker compose up
 
 - Install `ffmpeg` if not in system (needs to be available on cmd with `ffmpeg`)
 
-- Create in the root directory a `.env`-File with the following content:
+- Create in the `env/` directory a `.env`-File with the following content:
 
 ```.env
 CURRENT_DATASET = "<your_dataset_name>"
@@ -38,7 +38,7 @@ CURRENT_LANGUAGE = "de" # currently only german sentences
 
 Change the name of your dataset to what your dataset should be called.
 
-- Start Server with `python app.py` and visit `localhost:5000`
+- Start Server with `python app.py` and visit `localhost:5067`
 
 # Data
 
