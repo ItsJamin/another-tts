@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  tts_app:
+    build: .
+    image: itsjamin/another-tts:latest
+    container_name: tts_app
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./.env:/app/.env
+    environment:
+      - CURRENT_DATASET=${CURRENT_DATASET}
+      - CURRENT_LANGUAGE=${CURRENT_LANGUAGE}
