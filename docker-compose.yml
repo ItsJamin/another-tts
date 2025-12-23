@@ -3,7 +3,7 @@ services:
     build: .
     container_name: tts_app
     ports:
-      - "5000:5000"
+      - "5067:5067"
     volumes:
       - ./data:/app/data
       - ./data/env:/app/env

@@ -20,7 +20,7 @@ COPY . .
 # Copy default env.example
 COPY .env.example /app/.env.example
 
-EXPOSE 5000
+EXPOSE 5067
 
 # Default command
 CMD ["python", "app.py"]
