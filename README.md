@@ -17,6 +17,8 @@ Easy Workflow for creating Training Data for TTS.
 - Install Libraries:
     `pip install -r requirements.txt`
 
+- Install `ffmpeg` if not in system (needs to be available on cmd with `ffmpeg`)
+
 - Start Server with `python app.py`
 
 ### Data

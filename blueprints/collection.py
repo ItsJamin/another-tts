@@ -2,6 +2,13 @@ import os
 import uuid
 import csv
 from flask import Blueprint, request, jsonify
+from flask import request, jsonify
+from audio_utils import (
+    decode_with_ffmpeg,
+    enforce_audio_standards,
+    write_pcm16_wav
+)
+
 
 collection_bp = Blueprint('collection', __name__)
 
@@ -57,7 +64,6 @@ def upload_audio(sentence_index):
 
     audio_file = request.files['audio']
 
-    # Accept transcript from the frontend if provided; otherwise fall back to sentence index
     transcript = request.form.get('transcript', '').strip()
     sentences = get_sentences()
 
@@ -66,19 +72,32 @@ def upload_audio(sentence_index):
             return jsonify({'error': 'Invalid sentence index'}), 400
         transcript = sentences[sentence_index]
 
-    # Generate unique filename
-    filename = f"recording_{uuid.uuid4().hex}.wav"
+    try:
+        audio = decode_with_ffmpeg(audio_file)
 
-    # Read audio data and save directly
-    audio_data = audio_file.read()
-    filepath = os.path.join(WAVS_DIR, filename)
-    with open(filepath, 'wb') as f:
-        f.write(audio_data)
+        # audio = enforce_audio_standards(audio, 44100) # TODO
 
-    # Save metadata (use frontend-provided transcript when available)
-    save_metadata(filename, transcript)
+        filename = f"sentence_{sentence_index:04d}_{uuid.uuid4().hex}.wav"
 
-    return jsonify({'success': True, 'filename': filename})
+        filepath = os.path.join(WAVS_DIR, filename)
+
+        write_pcm16_wav(filepath, audio, 44100)
+
+        save_metadata(filename, transcript)
+
+        return jsonify({
+            'success': True,
+            'filename': filename,
+            # 'lufs': round(lufs, 2),
+            # 'peak_dbfs': round(peak_dbfs, 2)
+        })
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
+    except Exception as e:
+        return jsonify({'error': f'Audio processing failed: {str(e)}'}), 500
+
 
 @collection_bp.route('/update_transcript/<int:sentence_index>', methods=['POST'])
 def update_transcript(sentence_index):
