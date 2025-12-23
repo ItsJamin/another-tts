@@ -32,6 +32,7 @@ def get_sentences():
                 with open(filepath, 'r', encoding='utf-8') as f:
                     file_sentences = [line.strip() for line in f if line.strip()]
                     sentences.extend(file_sentences)
+        print("Loaded", len(sentences), "sentences for collection.")
         return sentences
     return []
 

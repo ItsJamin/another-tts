@@ -46,7 +46,8 @@ Easy Workflow for creating Training Data for TTS.
 
 * Transcript text must match the spoken audio verbatim
 * No paraphrasing, omissions, or additions
-* All text must be fully normalized (numbers, dates, abbreviations, symbols written out)
+* All text must be fully normalized (numbers, dates, abbreviations, special symbols written out)
+* DO use points, question marks, commatas and apostrophs.
 * No inconsistent or ambiguous punctuation
 * One sentence per line
 * Neutral, non-acted language (does not mean boring)
@@ -59,6 +60,7 @@ Examples:
 - The contract was signed in 2025. -> The contract was signed in twenty twenty five.
 - Dr. Smith will arrive at 9 a.m. -> Doctor Smith will arrive at nine a m.
 - The battery is at 80%. -> The battery is at eighty percent.
+- "Wait, how did you 2 meet again?" -> Wait, how did you two meet again?
 
 ---
 
