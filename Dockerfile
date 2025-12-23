@@ -8,7 +8,6 @@ ENV PYTHONUNBUFFERED=1
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     ffmpeg \
-    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
@@ -21,10 +20,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy rest of the project
 COPY . .
 
-COPY .env.example /app/.env
+# Copy default env example
+COPY .env.example /app/.env.example
+
+# Copy entrypoint script
+COPY entrypoint.sh /app/entrypoint.sh
+RUN chmod +x /app/entrypoint.sh
 
 # Expose port
 EXPOSE 5000
 
-# Default command
+# Use entrypoint to auto-create .env if missing
+ENTRYPOINT ["/app/entrypoint.sh"]
 CMD ["python", "app.py"]
