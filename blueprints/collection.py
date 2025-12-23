@@ -77,7 +77,7 @@ def upload_audio(sentence_index):
 
         # audio = enforce_audio_standards(audio, 44100) # TODO
 
-        filename = f"sentence_{sentence_index:04d}_{uuid.uuid4().hex}.wav"
+        filename = f"sentence_{sentence_index+1:04d}_{uuid.uuid4().hex}.wav"
 
         filepath = os.path.join(WAVS_DIR, filename)
 
