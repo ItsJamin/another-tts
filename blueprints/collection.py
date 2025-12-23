@@ -8,22 +8,23 @@ from audio_utils import (
     enforce_audio_standards,
     write_pcm16_wav
 )
+import dotenv
 
 
 collection_bp = Blueprint('collection', __name__)
 
 DATA_DIR = 'data'
-WAVS_DIR = os.path.join(DATA_DIR, 'wavs')
-METADATA_FILE = os.path.join(DATA_DIR, 'metadata.csv')
+WAVS_DIR = os.path.join(DATA_DIR,  'datasets', dotenv.get_key('.env', 'CURRENT_DATASET') or 'your_dataset')
+METADATA_FILE = os.path.join(WAVS_DIR, 'metadata.csv')
 
 # Ensure directories exist
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(WAVS_DIR, exist_ok=True)
 
 def get_sentences():
-    """Load sentences from data/sentences_de/*.txt"""
+    """Load sentences from data/sentences/de/*.txt"""
 
-    sentence_folder = os.path.join(DATA_DIR, 'sentences_de')
+    sentence_folder = os.path.join(DATA_DIR, 'sentences', dotenv.get_key('.env', 'CURRENT_LANGUAGE') or 'de')
     if os.path.exists(sentence_folder):
         sentences = []
         for filename in os.listdir(sentence_folder):
@@ -78,7 +79,7 @@ def upload_audio(sentence_index):
 
         # audio = enforce_audio_standards(audio, 44100) # TODO
 
-        filename = f"sentence_{sentence_index+1:04d}_{uuid.uuid4().hex}.wav"
+        filename = f"{sentence_index+1:05d}_{uuid.uuid4().hex[:7]}.wav"
 
         filepath = os.path.join(WAVS_DIR, filename)
 

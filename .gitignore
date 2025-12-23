@@ -1,5 +1,6 @@
-data/wavs/*
 TASK.md
 .venv
 __pycache__/
-data/metadata.csv
+data/datasets/*/
+!data/datasets/example
+.env

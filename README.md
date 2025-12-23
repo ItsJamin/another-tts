@@ -19,18 +19,26 @@ Easy Workflow for creating Training Data for TTS.
 
 - Install `ffmpeg` if not in system (needs to be available on cmd with `ffmpeg`)
 
-- Start Server with `python app.py`
+- Create in the root directory a `.env`-File with the following content:
+
+```.env
+CURRENT_DATASET = "<your_dataset_name>"
+CURRENT_LANGUAGE = "de" # currently only german sentences
+```
+
+Change the name of your dataset to what your dataset should be called.
+
+- Start Server with `python app.py` and visit `localhost:5000`
 
 ### Data
 
-- `data/sentences_*/` - Textfiles of what to say
-- `data/wavs/` - Place where recordings are saved.
-- `data/metadata.csv` - Which audiofiles contain what text.
-
+- `data/sentences/CURRENT_LANGUAGE/` - Textfiles of what to say
+- `data/datasets/CURRENT_DATASET/` - Place where recordings are saved.
+- `data/datasets/CURRENT_DATASET/metadata.csv` - Which audiofiles contain what text. (see `example` Dataset)
 
 ### TODO
 
-- [ ] GUI for easily recording Data
+- [x] GUI for easily recording Data
 - [ ] GUI for Overview over recorded Data
 - [ ] Filter out already recorded lines
 
