@@ -27,7 +27,7 @@ def get_sentences():
     sentence_folder = os.path.join(DATA_DIR, 'sentences', dotenv.get_key('env/.env', 'CURRENT_LANGUAGE') or 'de')
     if os.path.exists(sentence_folder):
         sentences = []
-        for filename in os.listdir(sentence_folder):
+        for filename in sorted(os.listdir(sentence_folder)):
             if filename.endswith('.txt'):
                 filepath = os.path.join(sentence_folder, filename)
                 with open(filepath, 'r', encoding='utf-8') as f:
