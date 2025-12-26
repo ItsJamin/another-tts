@@ -2,6 +2,7 @@ import os
 import shutil
 from flask import Flask, jsonify, render_template, send_file
 from blueprints.collection import collection_bp
+from blueprints.export import export_bp
 
 env_dir = os.path.join(os.getcwd(), "env")
 env_path = os.path.join(env_dir, ".env")
@@ -21,6 +22,7 @@ app = Flask(__name__)
 
 # Register blueprint
 app.register_blueprint(collection_bp)
+app.register_blueprint(export_bp)
 
 DATA_DIR = 'data'
 WAVS_DIR = os.path.join(DATA_DIR, 'wavs')

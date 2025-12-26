@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Export Overview{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4" style="color: #28a745;">
+    Export Overview
+</h1>
+
+<div class="sentence-display">
+    <strong>Metadata entries:</strong>
+    {{ stats.total_entries }}
+</div>
+
+<div class="sentence-display">
+    <strong>Valid recordings:</strong>
+    {{ stats.valid_files }}
+</div>
+
+{% if stats.missing_files > 0 %}
+<div class="sentence-display">
+    <strong>Missing WAV files:</strong>
+    {{ stats.missing_files }}
+</div>
+{% endif %}
+
+{% if stats.error_files > 0 %}
+<div class="sentence-display">
+    <strong>Unreadable / corrupted WAVs:</strong>
+    {{ stats.error_files }}
+</div>
+{% endif %}
+
+{% if stats.error_files > 0 %}
+<div class="sentence-display">
+    <strong>Unreadable / corrupted WAVs:</strong>
+    {{ stats.error_files }}
+</div>
+{% endif %}
+
+<div class="sentence-display">
+    <strong>Total duration:</strong>
+    {{ "%.2f"|format(stats.total_duration / 60) }} minutes
+    ({{ "%.1f"|format(stats.total_duration) }} seconds)
+</div>
+{% endblock %}

@@ -1,62 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Another TTS</title>
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-</head>
-<body>
-    <div class="container">
-        <div class="recording-card">
-            <h1 class="text-center mb-4" style="color: #28a745;">Another TTS</h1>
+{% extends "base.html" %}
 
+{% block title %}Another TTS{% endblock %}
 
+{% block content %}
+<h1 class="text-center mb-4" style="color: #28a745;">
+    Another TTS
+</h1>
 
-            <div class="sentence-navigation mb-3">
-                <div class="input-group" style="max-width: 200px; margin: 0 auto;">
-                    <button class="btn btn-outline-success" id="prevBtn" title="Left Arrow">←</button>
-                    <input type="number" class="form-control text-center" id="sentenceNumberInput" min="1" value="1">
-                    <button class="btn btn-outline-success" id="nextBtn" title="Right Arrow">→</button>
-                </div>
-            </div>
-            <div class="sentence-display" id="sentenceDisplay">
-                <span id="currentSentence">Loading...</span>
-            </div>
+<div class="sentence-navigation mb-3">
+    <div class="input-group" style="max-width: 200px; margin: 0 auto;">
+        <button class="btn btn-outline-success" id="prevBtn" title="Left Arrow">←</button>
+        <input type="number" class="form-control text-center" id="sentenceNumberInput" min="1" value="1">
+        <button class="btn btn-outline-success" id="nextBtn" title="Right Arrow">→</button>
+    </div>
+</div>
 
-                <div class="text-center">
-                <button class="record-button" id="recordButton" title="Press Space to start/stop recording">
-                    <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="12" r="10"/>
-                        <circle cx="12" cy="12" r="3"/>
-                    </svg>
-                </button>
-                <div class="waveform" id="waveform" style="display: none;">
-                    <div class="progress waveform-progress" id="waveformProgress" style="height:12px;">
-                        <div class="" id="waveformBar" style="width: 0%;"></div>
-                    </div>
-                    <div class="d-flex justify-content-between mt-1">
-                        <small id="currentTime">0:00</small>
-                        <small id="durationTime">0:00</small>
-                    </div>
-                </div>
-                <div class="status" id="status">Click record or press Space to start</div>
-            </div>
+<div class="sentence-display" id="sentenceDisplay">
+    <span id="currentSentence">Loading...</span>
+</div>
 
-            <div class="controls">
-                <button class="control-btn" id="playBtn" disabled title="Space">Play (Space)</button>
-                <button class="control-btn" id="keepBtn" disabled title="Enter">Keep (Enter)</button>
-                <button class="control-btn" id="redoBtn" title="R">Redo (R)</button>
-                <button class="control-btn" id="editBtn" title="E">Edit Text (E)</button>
-            </div>
+<div class="text-center">
+    <button class="record-button" id="recordButton" title="Press Space to start/stop recording">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    </button>
+
+    <div class="waveform" id="waveform">
+        <div class="progress waveform-progress" id="waveformProgress">
+            <div id="waveformBar" style="width: 0%;"></div>
+        </div>
+        <div class="d-flex justify-content-between mt-1">
+            <small id="currentTime">0:00</small>
+            <small id="durationTime">0:00</small>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
-    <script src="{{ url_for('static', filename='js/recording.js') }}"></script>
-</body>
-</html>
+    <div class="status" id="status">
+        Click record or press Space to start
+    </div>
+</div>
+
+<div class="controls">
+    <button class="control-btn" id="playBtn" disabled>Play (Space)</button>
+    <button class="control-btn" id="keepBtn" disabled>Keep (Enter)</button>
+    <button class="control-btn" id="redoBtn">Redo (R)</button>
+    <button class="control-btn" id="editBtn">Edit Text (E)</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/recording.js') }}"></script>
+{% endblock %}
