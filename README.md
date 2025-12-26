@@ -49,12 +49,11 @@ Change the name of your dataset to what your dataset should be called.
 # TODO
 
 - [x] GUI for easily recording Data
-- [ ] GUI for Overview over recorded Data
-- [ ] Filter out already recorded lines
+- [x] GUI for Overview over recorded Data
+- [x] Docker Implementation
 
-- [ ] Training of Data? (maybe in another project)
+- [ ] Filter out or show already recorded lines
 - [ ] Metadata for voice (mood, whisper, etc.)?
-- [ ] Docker Implementation
 
 ***
 
