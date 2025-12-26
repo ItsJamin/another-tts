@@ -7,3 +7,4 @@ data/datasets/*/
 *.spec
 dist/
 build/
+version.txt

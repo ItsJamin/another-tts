@@ -1,8 +1,6 @@
 import subprocess
 import numpy as np
-import pyloudnorm as pyln
 import wave
-import io
 
 TARGET_SAMPLE_RATE = 44100
 TARGET_CHANNELS = 1
@@ -60,44 +58,44 @@ def trim_silence(audio, sr):
     return audio[start:end]
 
 
-def analyze_loudness(audio, sr):
-    meter = pyln.Meter(sr)
-    lufs = meter.integrated_loudness(audio)
+# def analyze_loudness(audio, sr):
+#     meter = pyln.Meter(sr)
+#     lufs = meter.integrated_loudness(audio)
 
-    peak = np.max(np.abs(audio))
-    peak_dbfs = 20.0 * np.log10(max(peak, 1e-9))
+#     peak = np.max(np.abs(audio))
+#     peak_dbfs = 20.0 * np.log10(max(peak, 1e-9))
 
-    return lufs, peak_dbfs
-
-
-def normalize_loudness(audio, sr, target_lufs):
-    meter = pyln.Meter(sr)
-    current_lufs = meter.integrated_loudness(audio)
-
-    return pyln.normalize.loudness(
-        audio,
-        current_lufs,
-        target_lufs
-    )
+#     return lufs, peak_dbfs
 
 
-def enforce_audio_standards(audio, sr):
-    audio = trim_silence(audio, sr)
+# def normalize_loudness(audio, sr, target_lufs):
+#     meter = pyln.Meter(sr)
+#     current_lufs = meter.integrated_loudness(audio)
 
-    lufs, peak_dbfs = analyze_loudness(audio, sr)
+#     return pyln.normalize.loudness(
+#         audio,
+#         current_lufs,
+#         target_lufs
+#     )
+# 
+# 
+# def enforce_audio_standards(audio, sr):
+#     audio = trim_silence(audio, sr)
 
-    if peak_dbfs >= 0.0:
-        raise ValueError("Clipping detected (peak >= 0 dBFS)")
+#     lufs, peak_dbfs = analyze_loudness(audio, sr)
 
-    if lufs < TARGET_LUFS_MIN or lufs > TARGET_LUFS_MAX:
-        target = (TARGET_LUFS_MIN + TARGET_LUFS_MAX) / 2.0
-        audio = normalize_loudness(audio, sr, target)
-        lufs, peak_dbfs = analyze_loudness(audio, sr)
+#     if peak_dbfs >= 0.0:
+#         raise ValueError("Clipping detected (peak >= 0 dBFS)")
 
-    if peak_dbfs > TARGET_PEAK_DBFS:
-        raise ValueError("Peak exceeds allowed maximum after normalization")
+#     if lufs < TARGET_LUFS_MIN or lufs > TARGET_LUFS_MAX:
+#         target = (TARGET_LUFS_MIN + TARGET_LUFS_MAX) / 2.0
+#         audio = normalize_loudness(audio, sr, target)
+#         lufs, peak_dbfs = analyze_loudness(audio, sr)
 
-    return audio, lufs, peak_dbfs
+#     if peak_dbfs > TARGET_PEAK_DBFS:
+#         raise ValueError("Peak exceeds allowed maximum after normalization")
+
+#     return audio, lufs, peak_dbfs
 
 
 def write_pcm16_wav(path, audio, sr):
