@@ -119,3 +119,26 @@ body {
     width: 100%;
     display: inline-block;
 }
+
+.export-link {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+}
+
+.export-btn {
+    border: 1px solid #28a745;
+    background: white;
+    color: #28a745;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+}
+
+.export-btn:hover {
+    background: #28a745;
+    color: white;
+}
